@@ -7,8 +7,16 @@ on:
     paths:
       - "plugins/**"
       - "!plugins/**/README.md"
+      - "package.json"
+      - "pnpm-lock.yaml"
+      - "tsconfig.json"
+      - "env.d.ts"
+      - "scripts/build-plugins.mjs"
       - "scripts/package-plugins.py"
       - ".github/workflows/publish-plugins.yml"
+  pull_request:
+    branches:
+      - main
   workflow_dispatch:
     inputs:
       release_tag:
@@ -20,7 +28,7 @@ permissions:
   contents: write
 
 concurrency:
-  group: publish-plugins-${{ github.repository }}
+  group: publish-plugins-${{ github.repository }}-${{ github.ref }}
   cancel-in-progress: false
 
 jobs:
@@ -30,13 +38,30 @@ jobs:
       - name: Checkout Source Repository
         uses: actions/checkout@v4
 
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
 
+      - name: Install Dependencies
+        run: pnpm install --no-frozen-lockfile
+
+      - name: Typecheck Plugins (TS & JS/MJS)
+        run: pnpm run typecheck
+
+      - name: Build Plugins
+        run: pnpm run build
+
       - name: Package Native Plugins
-        run: python scripts/package-plugins.py
+        run: pnpm run package
 
       - name: Upload Plugin Artifacts
         uses: actions/upload-artifact@v4
@@ -46,6 +71,7 @@ jobs:
           if-no-files-found: error
 
       - name: Publish Release Zip Bundles
+        if: github.event_name != 'pull_request'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TAG: ${{ inputs.release_tag || 'plugins-latest' }}
@@ -66,6 +92,7 @@ jobs:
           fi
 
       - name: Publish Build Artifacts to Orphan Branch 'repo'
+        if: github.event_name != 'pull_request'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         shell: bash
@@ -98,7 +125,7 @@ jobs:
 
           - **`index.min.json`**: Compact JSON index of all available plugins.
           - **`registry.json`**: Formatted JSON registry for debugging and documentation.
-          - **`repo/<id>/plugin.json`**: Native plugin manifests (`manifest.json` is a compatibility copy) and plugin assets.
+          - **`repo/<id>/plugin.json`**: Native plugin manifests (`manifest.json` is a compatibility copy) and compiled plugin assets.
           - **GitHub Releases (`plugins-latest`)**: Packaged `.zip` bundles for each plugin.
           README_EOF
 

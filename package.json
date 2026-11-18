@@ -1,0 +1,21 @@
+{
+  "name": "bowerbird-plugins",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@12.16.1",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "build": "node scripts/build-plugins.mjs",
+    "package": "python3 scripts/package-plugins.py --source .build/plugins --output dist/plugins",
+    "ci": "pnpm run typecheck && pnpm run build && pnpm run package"
+  },
+  "devDependencies": {
+    "@bowerbird/plugin-sdk": "^2.1.0",
+    "esbuild": "^0.25.0",
+    "typescript": "^5.2.2"
+  }
+}

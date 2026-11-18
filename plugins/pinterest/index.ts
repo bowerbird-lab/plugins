@@ -1,8 +1,59 @@
 // Pinterest resolver for the native host. The host calls resolveUrl when a
-// link is pasted or dropped. No DOM, React or bundler is involved; types live
-// in @bowerbird/plugin-sdk. This follows the original PR implementation:
-// anchor the page's image by content hash, then derive the /originals/ URL
-// from any resized rendition.
+// link is pasted or dropped. Types live in @bowerbird/plugin-sdk, and this
+// file is compiled to a single ESM index.js at build time.
+
+import type {
+  InspectInput,
+  InspectResult,
+  PluginAction,
+  PluginActionContext,
+  PluginUrlResolution,
+  ResolveUrlInput,
+} from "@bowerbird/plugin-sdk";
+
+interface ParsedPin {
+  id: string;
+  mpsId: string;
+  host: string;
+  sourceUrl: string;
+  canonicalUrl: string;
+  shortLink: boolean;
+}
+
+type ParsedInput =
+  | { kind: "pin"; pin: ParsedPin; url: string }
+  | { kind: "image"; url: string };
+
+interface FetchOptions {
+  headers?: Record<string, string>;
+  timeoutMs?: number;
+}
+
+interface PinImageEntry {
+  url?: string;
+  width?: number;
+}
+
+type PinImagesMap = Record<string, PinImageEntry | undefined>;
+
+interface MultiPinItem {
+  url: string;
+  candidates: string[];
+  sourceUrl: string;
+  name: string;
+  tags: string[];
+}
+
+interface MultiPinResult extends PluginUrlResolution {
+  folderName: string;
+  sourceUrl: string;
+  tags: string[];
+  items: MultiPinItem[];
+}
+
+type FetchPinResult =
+  | { multi: MultiPinResult }
+  | { pageUrl: string; imageUrl: string; multi?: undefined };
 
 const PINTEREST_HOST_RE = /(^|\.)pinterest\.[a-z.]+$/i;
 const PINIMG_HOST_RE = /^i(?:-[a-z0-9]+)?\.pinimg\.com$/i;
@@ -11,32 +62,32 @@ const MULTI_PIN_SHARE_RE = /\/multi-pin-share\/(\d+)/i;
 const PINIMG_URL_RE = /(?:https?:)?\/\/i(?:-[a-z0-9]+)?\.pinimg\.com\/[^\s"'<>\\]+?\.(?:jpe?g|png|gif|webp)(?:\?[^\s"'<>\\]*)?/gi;
 const META_TAG_RE = /<meta\b[^>]*>/gi;
 
-function normalize(raw) {
+function normalize(raw: unknown): string {
   let value = String(raw || "").trim();
   if (value.startsWith("//")) value = "https:" + value;
   if (!value.includes("://") && value.includes(".")) value = "https://" + value;
   return value;
 }
 
-function parsePin(url) {
+function parsePin(url: unknown): ParsedPin | null {
   const normalized = normalize(url);
   if (!normalized) return null;
-  let parsed;
+  let parsed: URL;
   try { parsed = new URL(normalized); } catch { return null; }
-  const host = parsed.hostname.toLowerCase();
-  if (!host) return null;
-  if (host === "pin.it" || host.endsWith(".pin.it")) {
-    return { id: "", host, sourceUrl: normalized, canonicalUrl: normalized, shortLink: true };
+  const hostname = parsed.hostname.toLowerCase();
+  if (!hostname) return null;
+  if (hostname === "pin.it" || hostname.endsWith(".pin.it")) {
+    return { id: "", mpsId: "", host: hostname, sourceUrl: normalized, canonicalUrl: normalized, shortLink: true };
   }
-  if (!PINTEREST_HOST_RE.test(host)) return null;
+  if (!PINTEREST_HOST_RE.test(hostname)) return null;
   const mpsMatch = parsed.pathname.match(MULTI_PIN_SHARE_RE);
   if (mpsMatch) {
     return {
       id: "",
       mpsId: mpsMatch[1],
-      host,
+      host: hostname,
       sourceUrl: normalized,
-      canonicalUrl: `https://${host}/multi-pin-share/${mpsMatch[1]}/`,
+      canonicalUrl: `https://${hostname}/multi-pin-share/${mpsMatch[1]}/`,
       shortLink: false,
     };
   }
@@ -45,22 +96,22 @@ function parsePin(url) {
   return {
     id: match[1],
     mpsId: "",
-    host,
+    host: hostname,
     sourceUrl: normalized,
-    canonicalUrl: `https://${host}/pin/${match[1]}/`,
+    canonicalUrl: `https://${hostname}/pin/${match[1]}/`,
     shortLink: false,
   };
 }
 
-function isPinimgHost(host) {
-  return PINIMG_HOST_RE.test(host);
+function isPinimgHost(hostname: string): boolean {
+  return PINIMG_HOST_RE.test(hostname);
 }
 
-function isPinimgURL(raw) {
+function isPinimgURL(raw: unknown): boolean {
   try { return isPinimgHost(new URL(normalize(raw)).hostname); } catch { return false; }
 }
 
-function parseInput(raw) {
+function parseInput(raw: unknown): ParsedInput | null {
   const pin = parsePin(raw);
   if (pin) return { kind: "pin", pin, url: pin.sourceUrl };
   const normalized = normalize(raw);
@@ -68,7 +119,7 @@ function parseInput(raw) {
   return null;
 }
 
-function decodeEntities(value) {
+function decodeEntities(value: unknown): string {
   return String(value)
     .replace(/&amp;/gi, "&").replace(/&quot;/gi, '"')
     .replace(/&#0*39;/gi, "'").replace(/&apos;/gi, "'")
@@ -76,7 +127,7 @@ function decodeEntities(value) {
     .replace(/&#x2f;/gi, "/").replace(/&#47;/gi, "/");
 }
 
-function normalizeImageCandidate(raw) {
+function normalizeImageCandidate(raw: unknown): string {
   let candidate = String(raw || "").trim();
   candidate = candidate.replace(/\\\//g, "/").replace(/\\u002f/gi, "/");
   candidate = decodeEntities(candidate);
@@ -86,12 +137,12 @@ function normalizeImageCandidate(raw) {
   try { return new URL(candidate).toString(); } catch { return ""; }
 }
 
-function attr(tag, name) {
+function attr(tag: string, name: string): string {
   const match = tag.match(new RegExp("\\b" + name + "\\s*=\\s*[\"']([^\"']*)[\"']", "i"));
   return match ? decodeEntities(match[1]) : "";
 }
 
-function imageHash(raw) {
+function imageHash(raw: string): string {
   try {
     const parsed = new URL(raw);
     if (!isPinimgHost(parsed.hostname)) return "";
@@ -102,7 +153,7 @@ function imageHash(raw) {
   } catch { return ""; }
 }
 
-function imageScore(candidate) {
+function imageScore(candidate: string): number {
   const lower = candidate.toLowerCase();
   let score = 0;
   try { if (isPinimgHost(new URL(candidate).hostname)) score += 20; } catch {}
@@ -115,10 +166,10 @@ function imageScore(candidate) {
   return score;
 }
 
-function bestImageCandidate(candidates) {
+function bestImageCandidate(candidates: string[]): string {
   let best = "";
   let bestScore = -1;
-  const seen = new Set();
+  const seen = new Set<string>();
   for (const candidate of candidates) {
     if (!candidate || seen.has(candidate)) continue;
     seen.add(candidate);
@@ -131,10 +182,10 @@ function bestImageCandidate(candidates) {
   return best;
 }
 
-function extractImageFromHtml(html) {
+function extractImageFromHtml(html: string): string {
   if (!String(html || "").trim()) return "";
   const unescaped = decodeEntities(String(html).replace(/\\\//g, "/").replace(/\\u002f/gi, "/"));
-  const metaCandidates = [];
+  const metaCandidates: string[] = [];
   for (const tag of unescaped.match(META_TAG_RE) || []) {
     const lower = tag.toLowerCase();
     if (!lower.includes("og:image") && !lower.includes("twitter:image")) continue;
@@ -157,31 +208,31 @@ function extractImageFromHtml(html) {
   return bestImageCandidate(candidates);
 }
 
-function splitExtension(pathValue) {
+function splitExtension(pathValue: string): { stem: string; ext: string } {
   const dot = pathValue.lastIndexOf(".");
   if (dot < 0) return { stem: pathValue, ext: "" };
   return { stem: pathValue.slice(0, dot), ext: pathValue.slice(dot + 1).toLowerCase() };
 }
 
-function uniqueExtensions(ext) {
-  const result = [];
+function uniqueExtensions(ext: string): string[] {
+  const result: string[] = [];
   for (const candidate of [ext, "jpg", "png", "webp", "gif"]) {
     if (candidate && !result.includes(candidate)) result.push(candidate);
   }
   return result;
 }
 
-function buildPinimgURL(parsed, pathValue) {
+function buildPinimgURL(parsed: URL, pathValue: string): string {
   const copy = new URL(parsed.toString());
   copy.protocol = "https:";
   copy.pathname = pathValue;
   return copy.toString();
 }
 
-function pinterestImageCandidates(raw) {
+function pinterestImageCandidates(raw: string): string[] {
   const normalized = normalizeImageCandidate(raw);
   if (!normalized) return [];
-  let parsed;
+  let parsed: URL;
   try { parsed = new URL(normalized); } catch { return [normalized]; }
   if (!isPinimgHost(parsed.hostname)) return [normalized];
 
@@ -194,7 +245,7 @@ function pinterestImageCandidates(raw) {
   const isOriginal = parts[0].toLowerCase() === "originals";
   const rest = parts.slice(1).join("/");
   const { stem, ext } = splitExtension(rest);
-  const candidates = [];
+  const candidates: string[] = [];
   if (isOriginal) {
     candidates.push(normalized);
   } else {
@@ -207,11 +258,11 @@ function pinterestImageCandidates(raw) {
   return [...new Set(candidates.filter(Boolean))];
 }
 
-async function host_fetch(url, options = {}) {
-  const host = globalThis.host;
-  const cookie = (host && host.settings && host.settings.get("cookie")) || "";
-  const headers = {
-    "User-Agent": "Mozilla/5.0 (compatible; Bowerbird/2.2; +https://github.com/owocc/bowerbird)",
+async function host_fetch(url: string, options: FetchOptions = {}): Promise<Response> {
+  const hostObj = typeof host !== "undefined" ? host : undefined;
+  const cookie = (hostObj?.settings?.get("cookie")) || "";
+  const headers: Record<string, string> = {
+    "User-Agent": "Mozilla/5.0 (compatible; Bowerbird/2.2; +https://github.com/bowerbird-lab/bowerbird)",
     ...(options.headers || {}),
   };
   if (cookie) headers.Cookie = cookie;
@@ -225,7 +276,7 @@ async function host_fetch(url, options = {}) {
   }
 }
 
-function pickPinImagesBestUrl(images) {
+function pickPinImagesBestUrl(images: PinImagesMap | undefined): string {
   if (!images || typeof images !== "object") return "";
   for (const key of ["orig", "1200x", "750x", "736x", "600x", "564x", "474x", "236x"]) {
     const entry = images[key];
@@ -247,7 +298,7 @@ function pickPinImagesBestUrl(images) {
   return best;
 }
 
-async function fetchMultiPinShare(mpsId, sourceUrl) {
+async function fetchMultiPinShare(mpsId: string, sourceUrl: string): Promise<MultiPinResult | null> {
   try {
     const sourcePath = `/multi-pin-share/${mpsId}/`;
     const dataPayload = JSON.stringify({
@@ -273,14 +324,21 @@ async function fetchMultiPinShare(mpsId, sourceUrl) {
       },
     });
     if (!response.ok) return null;
-    const json = await response.json();
-    const data = json && json.resource_response && json.resource_response.data;
+    const json = await response.json() as {
+      resource_response?: {
+        data?: {
+          pins?: Array<{ images?: PinImagesMap; grid_title?: string; title?: string }>;
+          owner?: { full_name?: string; username?: string };
+        };
+      };
+    };
+    const data = json?.resource_response?.data;
     const pins = data && Array.isArray(data.pins) ? data.pins : [];
     if (pins.length === 0) return null;
 
-    const items = [];
+    const items: MultiPinItem[] = [];
     for (const p of pins) {
-      const imgUrl = pickPinImagesBestUrl(p && p.images);
+      const imgUrl = pickPinImagesBestUrl(p?.images);
       if (!imgUrl) continue;
       const candidates = pinterestImageCandidates(imgUrl);
       const name = String((p && (p.grid_title || p.title)) || "").trim();
@@ -294,35 +352,36 @@ async function fetchMultiPinShare(mpsId, sourceUrl) {
     }
     if (items.length === 0) return null;
 
-    const owner = data.owner || {};
+    const owner = data?.owner || {};
     const ownerName = String(owner.full_name || owner.username || "").trim();
     const shortId = mpsId.slice(-6);
     const folderName = ownerName
       ? `Pinterest · ${ownerName} (${shortId})`
       : `Pinterest 集合 (${shortId})`;
 
-    if (globalThis.host && typeof host.log === "function") {
+    if (typeof host !== "undefined" && typeof host.log === "function") {
       host.log("info", "pinterest.multipin", `mpsId=${mpsId} pins=${items.length} folder=${folderName}`);
     }
     return {
+      url: items[0].url,
       folderName,
       sourceUrl,
       tags: ["pinterest"],
       items,
     };
   } catch (err) {
-    if (globalThis.host && typeof host.log === "function") {
+    if (typeof host !== "undefined" && typeof host.log === "function") {
       host.log("warn", "pinterest.multipin", `${mpsId} ${String(err)}`);
     }
     return null;
   }
 }
 
-async function fetchPinImage(pageUrl, options = {}) {
+async function fetchPinImage(pageUrl: string, options: FetchOptions = {}): Promise<FetchPinResult | null> {
   try {
     const response = await host_fetch(pageUrl, options);
     if (!response.ok) {
-      if (globalThis.host && typeof host.log === "function") {
+      if (typeof host !== "undefined" && typeof host.log === "function") {
         host.log("warn", "pinterest.page", `${pageUrl} status=${response.status}`);
       }
       return null;
@@ -336,21 +395,21 @@ async function fetchPinImage(pageUrl, options = {}) {
     const html = await response.text();
     const imageUrl = extractImageFromHtml(html);
     if (!imageUrl) {
-      if (globalThis.host && typeof host.log === "function") {
+      if (typeof host !== "undefined" && typeof host.log === "function") {
         host.log("warn", "pinterest.page", `${pageUrl} no anchored image`);
       }
       return null;
     }
     return { pageUrl: finalUrl, imageUrl };
   } catch (err) {
-    if (globalThis.host && typeof host.log === "function") {
+    if (typeof host !== "undefined" && typeof host.log === "function") {
       host.log("warn", "pinterest.page", `${pageUrl} ${String(err)}`);
     }
     return null;
   }
 }
 
-export async function resolveUrl({ url }) {
+export async function resolveUrl({ url }: ResolveUrlInput): Promise<PluginUrlResolution | null> {
   const input = parseInput(url);
   if (!input) return null;
 
@@ -364,7 +423,7 @@ export async function resolveUrl({ url }) {
   }
 
   const pin = input.pin;
-  if (globalThis.host && typeof host.log === "function") {
+  if (typeof host !== "undefined" && typeof host.log === "function") {
     host.log("info", "pinterest.match", pin.host);
   }
 
@@ -398,7 +457,7 @@ export async function resolveUrl({ url }) {
         `https://${frontHost}/pin/${pin.id}/`,
         { headers: { Host: "www.pinterest.com" }, timeoutMs: 15000 },
       );
-      if (resolved) {
+      if (resolved && !resolved.multi) {
         return {
           url: resolved.imageUrl,
           candidates: pinterestImageCandidates(resolved.imageUrl),
@@ -412,12 +471,12 @@ export async function resolveUrl({ url }) {
   return null;
 }
 
-export async function inspect({ item }) {
+export async function inspect({ item }: InspectInput): Promise<InspectResult | null> {
   const source = item && (item.url || item.originalUrl);
   if (!source) return null;
-  let host = "";
-  try { host = new URL(source).hostname.toLowerCase(); } catch { return null; }
-  if (!PINTEREST_HOST_RE.test(host) && host !== "pin.it") return null;
+  let hostname = "";
+  try { hostname = new URL(source).hostname.toLowerCase(); } catch { return null; }
+  if (!PINTEREST_HOST_RE.test(hostname) && hostname !== "pin.it") return null;
   return {
     sections: [{
       title: "Pinterest",
@@ -430,13 +489,15 @@ export async function inspect({ item }) {
   };
 }
 
-export async function actions({ items }) {
+export async function actions({ items }: PluginActionContext): Promise<PluginAction[]> {
   if (!items || items.length === 0) return [];
   if (typeof host === "undefined" || typeof host.platformOpen !== "function") return [];
   return [{ id: "open-source", title: "Open Pinterest page", icon: "external" }];
 }
 
-export async function runAction({ id, item, items }) {
+export async function runAction(
+  { id, item, items }: PluginActionContext & { id: string },
+): Promise<{ ok: boolean } | null> {
   if (id !== "open-source") return null;
   const target = (item && (item.url || item.originalUrl)) || (items && items[0] && (items[0].url || items[0].originalUrl));
   if (!target) return { ok: false };
