@@ -1,0 +1,109 @@
+name: Build and Publish Plugins
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "plugins/**"
+      - "!plugins/**/README.md"
+      - "scripts/package-plugins.py"
+      - ".github/workflows/publish-plugins.yml"
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: "Release tag in this repository"
+        required: false
+        default: "plugins-latest"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: publish-plugins-${{ github.repository }}
+  cancel-in-progress: false
+
+jobs:
+  build-and-publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Source Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Package Native Plugins
+        run: python scripts/package-plugins.py
+
+      - name: Upload Plugin Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: native-plugins
+          path: dist/plugins/
+          if-no-files-found: error
+
+      - name: Publish Release Zip Bundles
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ inputs.release_tag || 'plugins-latest' }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "Publishing plugin artifacts to GitHub Releases ($TAG)..."
+
+          if ! gh release view "$TAG" --repo "${{ github.repository }}" >/dev/null 2>&1; then
+            echo "Release $TAG does not exist. Creating..."
+            gh release create "$TAG" dist/plugins/releases/*.zip \
+              --repo "${{ github.repository }}" \
+              --title "Official Plugins (Latest)" \
+              --notes "Automated distribution build from commit $GITHUB_SHA ($GITHUB_REF_NAME)"
+          else
+            echo "Release $TAG exists. Uploading/clobbering assets..."
+            gh release upload "$TAG" dist/plugins/releases/*.zip --repo "${{ github.repository }}" --clobber
+          fi
+
+      - name: Publish Build Artifacts to Orphan Branch 'repo'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "Publishing build artifacts to orphan branch 'repo'..."
+
+          WORK_DIR=$(mktemp -d)
+          cd "$WORK_DIR"
+
+          git init -b repo
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          cp "$GITHUB_WORKSPACE/dist/plugins/index.min.json" ./index.min.json
+          cp "$GITHUB_WORKSPACE/dist/plugins/registry.json" ./registry.json
+
+          mkdir -p repo
+          for d in "$GITHUB_WORKSPACE/dist/plugins"/*/; do
+            if [ -d "$d" ] && [ "$(basename "$d")" != "releases" ]; then
+              plugin_id=$(basename "$d")
+              cp -R "$d" "repo/$plugin_id"
+            fi
+          done
+
+          cat << 'README_EOF' > README.md
+          # Bowerbird Official Plugins — Build Artifacts (`repo` branch)
+
+          > ⚠️ This orphan branch is automatically generated from `main` by GitHub Actions. Do not edit directly.
+
+          - **`index.min.json`**: Compact JSON index of all available plugins.
+          - **`registry.json`**: Formatted JSON registry for debugging and documentation.
+          - **`repo/<id>/plugin.json`**: Native plugin manifests (`manifest.json` is a compatibility copy) and plugin assets.
+          - **GitHub Releases (`plugins-latest`)**: Packaged `.zip` bundles for each plugin.
+          README_EOF
+
+          git add -A
+          git commit -m "chore(plugins): build artifacts from ${GITHUB_SHA:0:7} [skip ci]"
+          git remote add origin "https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git"
+          git push --force origin repo
+          echo "Successfully pushed build artifacts to orphan branch 'repo'."
