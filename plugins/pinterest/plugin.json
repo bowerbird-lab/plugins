@@ -1,7 +1,7 @@
 {
   "id": "official.pinterest",
   "name": "Pinterest",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "minAppVersion": "1.0.0",
   "main": "index.js",
   "description": "Resolve Pinterest pin links to the original image without a build step.",

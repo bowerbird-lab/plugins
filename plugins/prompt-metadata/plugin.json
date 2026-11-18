@@ -1,7 +1,7 @@
 {
   "id": "official.prompt-metadata",
   "name": "AI Prompt Metadata",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "minAppVersion": "1.0.0",
   "kind": "metadata",
   "native": "prompt",
