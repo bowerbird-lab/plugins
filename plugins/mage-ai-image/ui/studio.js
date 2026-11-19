@@ -31,9 +31,10 @@ async function models() {
       if(list.length) items=list;
     } catch(e) { status(`模型列表加载失败，使用内置列表：${e.message}`); }
   }
+  const configured=(await setting('defaultArchitecture').catch(()=> '')).trim();
+  if(configured && !items.some(x=>x.id===configured)) items.unshift({id:configured,name:configured});
   $('model').replaceChildren(...items.map(m=>{const o=document.createElement('option');o.value=m.id;o.textContent=m.name||m.id;o.dataset.modelId=m.base_config?.model_id||'';return o;}));
-  const configured=await setting('defaultArchitecture').catch(()=> '');
-  if(items.some(x=>x.id===configured)) $('model').value=configured;
+  if(configured) $('model').value=configured;
   if(state.key) try { const account=(await request('https://api.mage.space/v1/account','GET',undefined,auth())).json(); const n=account.gems??account.gems_balance??account.balance??account.billing?.gems; if(typeof n==='number') $('balance').textContent=`${n} Gems`; } catch {}
 }
 async function loadAsset() {
