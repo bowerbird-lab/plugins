@@ -27,8 +27,7 @@
     "actions"
   ],
   "ui": {
-    "windows": [{ "id": "studio", "title": "Mage AI Image Studio", "entry": "ui/index.html" }],
-    "sidebar": [{ "id": "mage-tools", "type": "group", "title": "Mage AI", "children": [{ "id": "mage-studio", "type": "window", "title": "图片编辑", "window": "studio" }] }]
+    "windows": [{ "id": "studio", "title": "Mage AI Image Studio", "entry": "ui/index.html" }]
   },
   "permissions": {
     "assets": ["read", "write"],
