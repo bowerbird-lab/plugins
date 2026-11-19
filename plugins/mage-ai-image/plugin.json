@@ -1,10 +1,11 @@
 {
   "id": "official.mage-ai-image",
   "name": "Mage AI Image",
-  "version": "1.0.0",
+  "version": "1.0.1-dev.0",
   "minAppVersion": "1.0.0",
   "kind": "action",
   "main": "index.js",
+  "hooks": ["actions"],
   "description": "Edit images with Mage API v1 models directly from the inspector or a standalone studio window.",
   "author": "Bowerbird Team",
   "license": "MIT",
@@ -19,17 +20,18 @@
     "image/"
   ],
   "builtin": false,
-  "hooks": [
-    "actions",
-    "runAction"
-  ],
   "capabilities": [
     "ai-image-edit",
     "standalone-window",
     "inspector-panel",
     "actions"
   ],
+  "ui": {
+    "windows": [{ "id": "studio", "title": "Mage AI Image Studio", "entry": "ui/index.html" }],
+    "inspector": [{ "id": "edit-image", "type": "window", "title": "用 Mage 修图", "window": "studio" }]
+  },
   "permissions": {
+    "assets": ["read", "write"],
     "network": [
       "api.mage.space",
       "*.mage.space",
