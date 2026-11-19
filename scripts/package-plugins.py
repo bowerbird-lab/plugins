@@ -31,8 +31,15 @@ def package_plugins(source: Path, output: Path) -> None:
             raise ValueError(f"{path}: missing plugin name")
         main = manifest.get("main")
         native = manifest.get("native") or manifest.get("preview", {}).get("renderer")
-        if not main and not native:
-            raise ValueError(f"{path}: plugin must declare main or native")
+        ui = manifest.get("ui") or {}
+        entries = ui.get("windows", []) + ui.get("panels", [])
+        if not main and not native and not entries:
+            raise ValueError(f"{path}: plugin must declare main, native or UI")
+        for contribution in entries:
+            entry_name = contribution.get("entry", "")
+            entry = (path.parent / entry_name).resolve()
+            if not contribution.get("id") or not entry_name or not entry.is_relative_to(path.parent.resolve()) or not entry.is_file():
+                raise ValueError(f"{path}: missing or unsafe UI entry {entry_name}")
         if main:
             entry = (path.parent / main).resolve()
             if not entry.is_relative_to(path.parent.resolve()) or not entry.is_file():

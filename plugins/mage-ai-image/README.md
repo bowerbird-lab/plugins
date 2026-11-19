@@ -1,14 +1,9 @@
-# Mage AI Image (`official.mage-ai-image`)
+# Mage AI Image
 
-Edit images in Bowerbird using the [Mage API v1](https://docs.mage.space/api/overview).
+Mage AI Image uses a plugin-owned WebView window to edit a selected Bowerbird image. It requires a Bowerbird build with plugin WebView windows and the settings, network and asset bridge APIs.
 
-## Features
+Select an image in Bowerbird, open Settings → Plugins → Mage AI Image, enter your Mage API key and enable network, selected-asset read and asset write permissions. Open Mage AI Image Studio from the plugin card. The window keeps the image selected when it was opened; close and reopen it to use another image.
 
-- **Image Editing (Mage API v1)**: Automatically fetches image-editing models from `GET /v1/architectures` (e.g. Flux 2, GPT Image 2, Mango, Nano Banana 2, Seedream, Guava), handles inline base64 or signed `POST /v1/uploads` for large files, submits with `Idempotency-Key`, polls `status_url`, and supports cancellation.
-- **Standalone Window & Inspector Panel**: Launch in a dedicated AI Studio window or run edits inline from the right-hand Inspector.
-- **Safe Save & Overwrite with Backup**: Save edited outputs as a new asset, or overwrite the original after confirmation while backing up the previous file in the same item directory (`items/<id>/`) and recording version history in `metadata.json` for easy restore or deletion.
+Select a model or enter a Mage architecture ID, enter a prompt and run the edit. Results can be saved as a new item or replace the selected image with a backup. App handles the normal asset processing. Errors returned by Mage are displayed in the window. Larger images use Mage's signed upload endpoint.
 
-## Setup
-
-1. Create an API key in [Mage API Dashboard](https://www.mage.space/api?tab=api-keys).
-2. Open **Bowerbird → Settings → Plugins → Mage AI Image** and paste your API key (`mage_sk_...`).
+The plugin sends the selected image and prompt to the domains declared in its permissions. Mage API access may require a paid account and available Gems. The temporary WebView bridge currently limits input and response payloads to 24 MiB.
