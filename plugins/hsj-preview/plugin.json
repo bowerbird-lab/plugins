@@ -1,0 +1,36 @@
+{
+  "id": "official.hsj-preview",
+  "name": "HSJ Preview",
+  "version": "1.0.0",
+  "minAppVersion": "1.0.0",
+  "kind": "preview",
+  "native": "hsj",
+  "description": "Native Huashijie (.hsj) artwork preview with zoom, pan and thumbnail generation.",
+  "author": "Bowerbird Team",
+  "license": "MIT",
+  "priority": 95,
+  "extensions": [
+    "hsj"
+  ],
+  "mimePrefixes": [
+    "application/x-hsj"
+  ],
+  "supportsZoom": true,
+  "capabilities": [
+    "preview"
+  ],
+  "builtin": false,
+  "permissions": {
+    "network": [],
+    "process": []
+  },
+  "settings": [],
+  "platforms": [
+    "desktop",
+    "mobile"
+  ],
+  "preview": {
+    "renderer": "webview",
+    "entry": "view.html"
+  }
+}
