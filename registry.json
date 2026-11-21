@@ -1,0 +1,518 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-11-21T13:05:53.991824+00:00",
+  "plugins": [
+    {
+      "id": "official.audio-player",
+      "name": "Audio Player",
+      "version": "1.1.0",
+      "minAppVersion": "1.0.0",
+      "kind": "preview",
+      "native": "audio",
+      "description": "Native audio playback with spectrum bars, scrubber and technical metadata.",
+      "author": "Bowerbird Team",
+      "license": "MIT",
+      "priority": 60,
+      "extensions": [
+        "mp3",
+        "wav",
+        "ogg",
+        "flac",
+        "m4a",
+        "aac",
+        "webm"
+      ],
+      "mimePrefixes": [
+        "audio/"
+      ],
+      "supportsZoom": false,
+      "capabilities": [
+        "preview"
+      ],
+      "builtin": true,
+      "permissions": {
+        "network": [],
+        "process": []
+      },
+      "settings": [],
+      "platforms": [
+        "desktop",
+        "mobile"
+      ],
+      "assetFileName": "official.audio-player-v1.1.0.zip"
+    },
+    {
+      "id": "official.hsj-preview",
+      "name": "HSJ Preview",
+      "version": "1.0.0",
+      "minAppVersion": "1.0.0",
+      "kind": "preview",
+      "native": "hsj",
+      "description": "Native Huashijie (.hsj) artwork preview with zoom, pan and thumbnail generation.",
+      "author": "Bowerbird Team",
+      "license": "MIT",
+      "priority": 95,
+      "extensions": [
+        "hsj"
+      ],
+      "mimePrefixes": [
+        "application/x-hsj"
+      ],
+      "supportsZoom": true,
+      "capabilities": [
+        "preview"
+      ],
+      "builtin": false,
+      "permissions": {
+        "network": [],
+        "process": []
+      },
+      "settings": [],
+      "platforms": [
+        "desktop",
+        "mobile"
+      ],
+      "preview": {
+        "renderer": "webview",
+        "entry": "view.html"
+      },
+      "assetFileName": "official.hsj-preview-v1.0.0.zip"
+    },
+    {
+      "id": "official.ipv-preview",
+      "name": "IPV Preview",
+      "version": "1.0.0",
+      "minAppVersion": "1.0.0",
+      "kind": "preview",
+      "native": "ipv",
+      "description": "Native ibisPaint (.ipv) artwork preview with zoom, pan and thumbnail generation.",
+      "author": "Bowerbird Team",
+      "license": "MIT",
+      "priority": 95,
+      "extensions": [
+        "ipv"
+      ],
+      "mimePrefixes": [
+        "application/x-ibispaint",
+        "application/x-ipv"
+      ],
+      "supportsZoom": true,
+      "capabilities": [
+        "preview"
+      ],
+      "builtin": false,
+      "permissions": {
+        "network": [],
+        "process": []
+      },
+      "settings": [],
+      "platforms": [
+        "desktop",
+        "mobile"
+      ],
+      "preview": {
+        "renderer": "webview",
+        "entry": "view.html"
+      },
+      "assetFileName": "official.ipv-preview-v1.0.0.zip"
+    },
+    {
+      "id": "official.mage-ai-image",
+      "name": "Mage AI Image",
+      "version": "1.0.1-dev.0",
+      "minAppVersion": "1.0.0",
+      "kind": "action",
+      "description": "Edit images with Mage API v1 models directly from the inspector or a standalone studio window.",
+      "author": "Bowerbird Team",
+      "license": "MIT",
+      "priority": 60,
+      "extensions": [
+        "png",
+        "jpg",
+        "jpeg",
+        "webp"
+      ],
+      "mimePrefixes": [
+        "image/"
+      ],
+      "builtin": false,
+      "capabilities": [
+        "ai-image-edit",
+        "standalone-window",
+        "inspector-panel",
+        "actions"
+      ],
+      "ui": {
+        "windows": [
+          {
+            "id": "studio",
+            "title": "Mage AI Image Studio",
+            "entry": "ui/index.html"
+          }
+        ],
+        "inspector": [
+          {
+            "id": "edit-image",
+            "type": "window",
+            "title": "用 Mage 修图",
+            "window": "studio"
+          }
+        ]
+      },
+      "permissions": {
+        "assets": [
+          "read",
+          "write"
+        ],
+        "network": [
+          "api.mage.space",
+          "*.mage.space",
+          "storage.googleapis.com"
+        ],
+        "process": [],
+        "openExternal": true
+      },
+      "settings": [
+        {
+          "key": "apiKey",
+          "label": "Mage API Key",
+          "help": "Create an API key at mage.space/api (API Keys tab).",
+          "placeholder": "mage_sk_...",
+          "secret": true
+        },
+        {
+          "key": "defaultArchitecture",
+          "label": "Default Model",
+          "help": "Default Mage architecture for image editing (e.g. flux2, gpt_image_2, mango, nano_banana_v2).",
+          "placeholder": "flux2",
+          "default": "flux2"
+        }
+      ],
+      "homepage": "https://docs.mage.space/api/overview",
+      "platforms": [
+        "desktop"
+      ],
+      "assetFileName": "official.mage-ai-image-v1.0.1-dev.0.zip"
+    },
+    {
+      "id": "official.markdown-preview",
+      "name": "Markdown Preview",
+      "version": "1.1.0",
+      "minAppVersion": "1.0.0",
+      "kind": "preview",
+      "native": "markdown",
+      "description": "Native GitHub-flavored Markdown preview rendered with mygo/ui, with no JavaScript entry module.",
+      "author": "Bowerbird Team",
+      "license": "MIT",
+      "priority": 50,
+      "extensions": [
+        "md",
+        "markdown",
+        "mdown",
+        "mkd",
+        "mdwn",
+        "mdt"
+      ],
+      "mimePrefixes": [
+        "text/markdown",
+        "text/x-markdown"
+      ],
+      "supportsZoom": false,
+      "capabilities": [
+        "preview"
+      ],
+      "builtin": false,
+      "permissions": {
+        "network": [],
+        "process": []
+      },
+      "settings": [],
+      "platforms": [
+        "desktop",
+        "mobile"
+      ],
+      "preview": {
+        "renderer": "webview",
+        "entry": "view.html"
+      },
+      "assetFileName": "official.markdown-preview-v1.1.0.zip"
+    },
+    {
+      "id": "official.pinterest",
+      "name": "Pinterest",
+      "version": "1.1.0",
+      "minAppVersion": "1.0.0",
+      "main": "index.js",
+      "description": "Resolve Pinterest pin links to the original image without a build step.",
+      "author": "Bowerbird Team",
+      "permissions": {
+        "network": [
+          "pinterest.com",
+          "*.pinterest.com",
+          "pinterest.*",
+          "*.pinterest.*",
+          "pin.it",
+          "*.pinimg.com",
+          "pinterest.ru",
+          "pinterest.co.kr"
+        ],
+        "process": [],
+        "openExternal": true
+      },
+      "settings": [
+        {
+          "key": "cookie",
+          "label": "Session Cookie (optional)",
+          "help": "For private boards; sent only to pinterest.com.",
+          "secret": true
+        }
+      ],
+      "kind": "resolver",
+      "priority": 55,
+      "extensions": [],
+      "mimePrefixes": [],
+      "builtin": false,
+      "hooks": [
+        "resolveUrl",
+        "inspect",
+        "actions",
+        "runAction"
+      ],
+      "capabilities": [
+        "url-resolver",
+        "metadata",
+        "actions"
+      ],
+      "homepage": "https://github.com/owocc/bowerbird",
+      "urlHosts": [
+        "pinterest.com",
+        "*.pinterest.com",
+        "pinterest.*",
+        "*.pinterest.*",
+        "pin.it",
+        "i.pinimg.com",
+        "*.pinimg.com"
+      ],
+      "urlPatterns": [
+        "^https?://(?:[a-z0-9-]+\\.)*pinterest\\.[a-z.]+/pin/\\d+",
+        "^https?://(?:[a-z0-9-]+\\.)*pinterest\\.[a-z.]+/",
+        "^https?://pin\\.it/[A-Za-z0-9]+",
+        "^https?://i(?:-[a-z0-9]+)?\\.pinimg\\.com/"
+      ],
+      "platforms": [
+        "desktop",
+        "mobile"
+      ],
+      "assetFileName": "official.pinterest-v1.1.0.zip"
+    },
+    {
+      "id": "official.pntr-preview",
+      "name": "PNTR Preview",
+      "version": "1.0.0",
+      "minAppVersion": "1.0.0",
+      "kind": "preview",
+      "native": "pntr",
+      "description": "Native Infinite Painter (.pntr) artwork preview with zoom, pan and thumbnail generation.",
+      "author": "Bowerbird Team",
+      "license": "MIT",
+      "priority": 95,
+      "extensions": [
+        "pntr"
+      ],
+      "mimePrefixes": [
+        "application/x-infinite-painter",
+        "application/x-pntr"
+      ],
+      "supportsZoom": true,
+      "capabilities": [
+        "preview"
+      ],
+      "builtin": false,
+      "permissions": {
+        "network": [],
+        "process": []
+      },
+      "settings": [],
+      "platforms": [
+        "desktop",
+        "mobile"
+      ],
+      "preview": {
+        "renderer": "webview",
+        "entry": "view.html"
+      },
+      "assetFileName": "official.pntr-preview-v1.0.0.zip"
+    },
+    {
+      "id": "official.prompt-metadata",
+      "name": "AI Prompt Metadata",
+      "version": "1.1.0",
+      "minAppVersion": "1.0.0",
+      "kind": "metadata",
+      "native": "prompt",
+      "description": "Records and inspects AI generation prompts with the native inspector, copy action and full-text editor.",
+      "author": "Bowerbird Team",
+      "license": "MIT",
+      "priority": 50,
+      "capabilities": [
+        "metadata"
+      ],
+      "builtin": false,
+      "permissions": {
+        "network": [],
+        "process": []
+      },
+      "settings": [],
+      "platforms": [
+        "desktop",
+        "mobile"
+      ],
+      "assetFileName": "official.prompt-metadata-v1.1.0.zip"
+    },
+    {
+      "id": "official.psd-preview",
+      "name": "PSD Preview",
+      "version": "1.1.0",
+      "minAppVersion": "1.0.0",
+      "kind": "preview",
+      "native": "psd",
+      "description": "Native Photoshop composite preview with layer tree, zoom and document properties.",
+      "author": "Bowerbird Team",
+      "license": "MIT",
+      "priority": 95,
+      "extensions": [
+        "psd",
+        "psb"
+      ],
+      "mimePrefixes": [
+        "image/vnd.adobe.photoshop",
+        "image/x-photoshop",
+        "image/photoshop",
+        "image/psd",
+        "application/x-photoshop"
+      ],
+      "supportsZoom": true,
+      "capabilities": [
+        "preview"
+      ],
+      "builtin": false,
+      "permissions": {
+        "network": [],
+        "process": []
+      },
+      "settings": [],
+      "platforms": [
+        "desktop",
+        "mobile"
+      ],
+      "preview": {
+        "renderer": "webview",
+        "entry": "view.html"
+      },
+      "assetFileName": "official.psd-preview-v1.1.0.zip"
+    },
+    {
+      "id": "official.svg-preview",
+      "name": "SVG Preview",
+      "version": "1.1.0",
+      "minAppVersion": "1.0.0",
+      "kind": "preview",
+      "platforms": [
+        "desktop",
+        "mobile"
+      ],
+      "preview": {
+        "renderer": "webview",
+        "entry": "view.html"
+      },
+      "description": "Render SVG vector graphics in WebView across desktop and mobile.",
+      "author": "Bowerbird Team",
+      "license": "MIT",
+      "priority": 90,
+      "extensions": [
+        "svg"
+      ],
+      "mimePrefixes": [
+        "image/svg+xml"
+      ],
+      "supportsZoom": true,
+      "capabilities": [
+        "preview"
+      ],
+      "builtin": false,
+      "permissions": {
+        "network": [],
+        "process": []
+      },
+      "settings": [],
+      "assetFileName": "official.svg-preview-v1.1.0.zip"
+    },
+    {
+      "id": "builtin.video",
+      "name": "Video Player",
+      "version": "1.1.0",
+      "minAppVersion": "1.0.0",
+      "kind": "preview",
+      "native": "video",
+      "platforms": [
+        "desktop",
+        "mobile"
+      ],
+      "preview": {
+        "renderer": "video",
+        "desktopRenderer": "video",
+        "mobileRenderer": "video",
+        "mobileFallback": "external"
+      },
+      "description": "Native video playback rendered by mygo/ui with ffmpeg frame decoding and mygo audio output.",
+      "author": "Bowerbird Team",
+      "license": "MIT",
+      "priority": 90,
+      "extensions": [
+        "mp4",
+        "mov",
+        "qt",
+        "webm",
+        "mkv",
+        "avi",
+        "m4v",
+        "flv",
+        "f4v",
+        "mts",
+        "m2ts",
+        "m3u8",
+        "m3u",
+        "mpd",
+        "ogv",
+        "ogm",
+        "3gp",
+        "3g2",
+        "wmv",
+        "asf",
+        "mpg",
+        "mpeg",
+        "m2v",
+        "vob",
+        "rmvb",
+        "rm"
+      ],
+      "mimePrefixes": [
+        "video/",
+        "application/vnd.apple.mpegurl",
+        "application/x-mpegurl",
+        "application/dash+xml"
+      ],
+      "supportsZoom": false,
+      "capabilities": [
+        "preview"
+      ],
+      "builtin": true,
+      "permissions": {
+        "network": [],
+        "process": []
+      },
+      "settings": [],
+      "assetFileName": "builtin.video-v1.1.0.zip"
+    }
+  ]
+}
