@@ -35,6 +35,11 @@ def package_plugins(source: Path, output: Path) -> None:
         entries = ui.get("windows", []) + ui.get("panels", [])
         if not main and not native and not entries:
             raise ValueError(f"{path}: plugin must declare main, native or UI")
+        preview_entry = (manifest.get("preview") or {}).get("entry", "")
+        if preview_entry:
+            entry = (path.parent / preview_entry).resolve()
+            if not entry.is_relative_to(path.parent.resolve()) or not entry.is_file():
+                raise ValueError(f"{path}: missing or unsafe preview entry {preview_entry}")
         for contribution in entries:
             entry_name = contribution.get("entry", "")
             entry = (path.parent / entry_name).resolve()

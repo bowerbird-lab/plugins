@@ -4,8 +4,6 @@
   "version": "1.0.1-dev.0",
   "minAppVersion": "1.0.0",
   "kind": "action",
-  "main": "index.js",
-  "hooks": ["actions"],
   "description": "Edit images with Mage API v1 models directly from the inspector or a standalone studio window.",
   "author": "Bowerbird Team",
   "license": "MIT",
