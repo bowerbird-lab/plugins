@@ -31,20 +31,34 @@ def package_plugins(source: Path, output: Path) -> None:
             raise ValueError(f"{path}: missing plugin name")
         main = manifest.get("main")
         native = manifest.get("native") or manifest.get("preview", {}).get("renderer")
-        ui = manifest.get("ui") or {}
-        entries = ui.get("windows", []) + ui.get("panels", [])
-        if not main and not native and not entries:
-            raise ValueError(f"{path}: plugin must declare main, native or UI")
         preview_entry = (manifest.get("preview") or {}).get("entry", "")
+        ui = manifest.get("ui") or {}
+        windows = ui.get("windows", [])
+        panels = ui.get("panels", [])
+        entries = windows + panels
+        if not main and not native and not preview_entry and not entries:
+            raise ValueError(f"{path}: plugin must declare main, preview, or UI")
         if preview_entry:
             entry = (path.parent / preview_entry).resolve()
             if not entry.is_relative_to(path.parent.resolve()) or not entry.is_file():
                 raise ValueError(f"{path}: missing or unsafe preview entry {preview_entry}")
-        for contribution in entries:
+        for contribution in windows:
+            if not contribution.get("id"):
+                raise ValueError(f"{path}: missing UI window id")
+            url_val = contribution.get("url", "")
+            entry_name = contribution.get("entry", "")
+            if url_val:
+                if entry_name or not url_val.startswith("https://"):
+                    raise ValueError(f"{path}: invalid UI window url {url_val}")
+                continue
+            entry = (path.parent / entry_name).resolve()
+            if not entry_name or not entry.is_relative_to(path.parent.resolve()) or not entry.is_file():
+                raise ValueError(f"{path}: missing or unsafe UI entry {entry_name}")
+        for contribution in panels:
             entry_name = contribution.get("entry", "")
             entry = (path.parent / entry_name).resolve()
             if not contribution.get("id") or not entry_name or not entry.is_relative_to(path.parent.resolve()) or not entry.is_file():
-                raise ValueError(f"{path}: missing or unsafe UI entry {entry_name}")
+                raise ValueError(f"{path}: missing or unsafe UI panel entry {entry_name}")
         if main:
             entry = (path.parent / main).resolve()
             if not entry.is_relative_to(path.parent.resolve()) or not entry.is_file():

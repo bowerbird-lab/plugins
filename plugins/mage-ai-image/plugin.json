@@ -4,6 +4,8 @@
   "version": "1.0.1-dev.0",
   "minAppVersion": "1.0.0",
   "kind": "action",
+  "main": "index.js",
+  "hooks": ["settingOptions"],
   "description": "Edit images with Mage API v1 models directly from the inspector or a standalone studio window.",
   "author": "Bowerbird Team",
   "license": "MIT",
@@ -49,9 +51,19 @@
     {
       "key": "defaultArchitecture",
       "label": "Default Model",
-      "help": "Default Mage architecture for image editing (e.g. flux2, gpt_image_2, mango, nano_banana_v2).",
-      "placeholder": "flux2",
-      "default": "flux2"
+      "type": "select",
+      "optionsHook": "settingOptions",
+      "help": "Default Mage architecture for image editing (refreshes from Mage API when API Key is set).",
+      "default": "flux2",
+      "options": [
+        { "value": "flux2", "label": "flux2" },
+        { "value": "gpt_image_2", "label": "gpt_image_2" },
+        { "value": "mango", "label": "mango" },
+        { "value": "nano_banana_v2", "label": "nano_banana_v2" },
+        { "value": "seedream", "label": "seedream" },
+        { "value": "guava", "label": "guava" },
+        { "value": "minimax_h3_image", "label": "minimax_h3_image" }
+      ]
     }
   ],
   "homepage": "https://docs.mage.space/api/overview",
