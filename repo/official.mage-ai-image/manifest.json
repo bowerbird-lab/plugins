@@ -1,0 +1,112 @@
+{
+  "id": "official.mage-ai-image",
+  "name": "Mage AI Image",
+  "version": "1.0.1-dev.0",
+  "minAppVersion": "1.0.0",
+  "kind": "action",
+  "main": "index.js",
+  "hooks": [
+    "settingOptions"
+  ],
+  "description": "Edit images with Mage API v1 models directly from the inspector or a standalone studio window.",
+  "author": "Bowerbird Team",
+  "license": "MIT",
+  "priority": 60,
+  "extensions": [
+    "png",
+    "jpg",
+    "jpeg",
+    "webp"
+  ],
+  "mimePrefixes": [
+    "image/"
+  ],
+  "builtin": false,
+  "capabilities": [
+    "ai-image-edit",
+    "standalone-window",
+    "inspector-panel",
+    "actions"
+  ],
+  "ui": {
+    "windows": [
+      {
+        "id": "studio",
+        "title": "Mage AI Image Studio",
+        "entry": "ui/index.html"
+      }
+    ],
+    "inspector": [
+      {
+        "id": "edit-image",
+        "type": "window",
+        "title": "用 Mage 修图",
+        "window": "studio"
+      }
+    ]
+  },
+  "permissions": {
+    "assets": [
+      "read",
+      "write"
+    ],
+    "network": [
+      "api.mage.space",
+      "*.mage.space",
+      "storage.googleapis.com"
+    ],
+    "process": [],
+    "openExternal": true
+  },
+  "settings": [
+    {
+      "key": "apiKey",
+      "label": "Mage API Key",
+      "help": "Create an API key at mage.space/api (API Keys tab).",
+      "placeholder": "mage_sk_...",
+      "secret": true
+    },
+    {
+      "key": "defaultArchitecture",
+      "label": "Default Model",
+      "type": "select",
+      "optionsHook": "settingOptions",
+      "help": "Default Mage architecture for image editing (refreshes from Mage API when API Key is set).",
+      "default": "flux2",
+      "options": [
+        {
+          "value": "flux2",
+          "label": "flux2"
+        },
+        {
+          "value": "gpt_image_2",
+          "label": "gpt_image_2"
+        },
+        {
+          "value": "mango",
+          "label": "mango"
+        },
+        {
+          "value": "nano_banana_v2",
+          "label": "nano_banana_v2"
+        },
+        {
+          "value": "seedream",
+          "label": "seedream"
+        },
+        {
+          "value": "guava",
+          "label": "guava"
+        },
+        {
+          "value": "minimax_h3_image",
+          "label": "minimax_h3_image"
+        }
+      ]
+    }
+  ],
+  "homepage": "https://docs.mage.space/api/overview",
+  "platforms": [
+    "desktop"
+  ]
+}

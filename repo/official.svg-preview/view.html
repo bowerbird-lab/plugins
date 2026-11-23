@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SVG Preview</title>
+  <style>
+    :root { color-scheme: light dark; }
+    html, body {
+      margin: 0; padding: 16px;
+      display: flex; align-items: center; justify-content: center;
+      min-height: 100vh; box-sizing: border-box;
+      background: transparent;
+    }
+    img, svg { max-width: 100%; max-height: 90vh; object-fit: contain; }
+  </style>
+</head>
+<body>
+  <div id="root">Loading SVG...</div>
+  <script src="view.js"></script>
+</body>
+</html>

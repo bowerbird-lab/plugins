@@ -1,0 +1,24 @@
+{
+  "id": "official.google-flow",
+  "name": "Google Flow",
+  "version": "0.1.0",
+  "minAppVersion": "1.0.0",
+  "kind": "action",
+  "description": "在独立 WebView 窗口中打开 Google Flow（https://flow.google.com/），自动拦截下载并直接保存到当前 Bowerbird 资源库。",
+  "author": "Bowerbird Team",
+  "homepage": "https://flow.google.com/",
+  "builtin": false,
+  "ui": {
+    "windows": [
+      {
+        "id": "flow",
+        "title": "打开 Google Flow",
+        "url": "https://flow.google.com/",
+        "interceptDownloads": true
+      }
+    ]
+  },
+  "platforms": [
+    "desktop"
+  ]
+}

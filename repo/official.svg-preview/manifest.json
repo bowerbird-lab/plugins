@@ -1,0 +1,38 @@
+{
+  "id": "official.svg-preview",
+  "name": "SVG Preview",
+  "version": "2.0.0",
+  "minAppVersion": "1.0.0",
+  "kind": "preview",
+  "platforms": [
+    "desktop",
+    "mobile"
+  ],
+  "preview": {
+    "renderer": "webview",
+    "entry": "view.html"
+  },
+  "description": "Render SVG vector graphics in an isolated transparent WebView.",
+  "author": "Bowerbird Team",
+  "license": "MIT",
+  "priority": 90,
+  "extensions": [
+    "svg"
+  ],
+  "mimePrefixes": [
+    "image/svg+xml"
+  ],
+  "supportsZoom": true,
+  "capabilities": [
+    "preview"
+  ],
+  "builtin": false,
+  "permissions": {
+    "assets": [
+      "read"
+    ],
+    "network": [],
+    "process": []
+  },
+  "settings": []
+}

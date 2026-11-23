@@ -1,0 +1,37 @@
+{
+  "id": "official.pntr-preview",
+  "name": "PNTR Preview",
+  "version": "1.0.0",
+  "minAppVersion": "1.0.0",
+  "kind": "preview",
+  "native": "pntr",
+  "description": "Native Infinite Painter (.pntr) artwork preview with zoom, pan and thumbnail generation.",
+  "author": "Bowerbird Team",
+  "license": "MIT",
+  "priority": 95,
+  "extensions": [
+    "pntr"
+  ],
+  "mimePrefixes": [
+    "application/x-infinite-painter",
+    "application/x-pntr"
+  ],
+  "supportsZoom": true,
+  "capabilities": [
+    "preview"
+  ],
+  "builtin": false,
+  "permissions": {
+    "network": [],
+    "process": []
+  },
+  "settings": [],
+  "platforms": [
+    "desktop",
+    "mobile"
+  ],
+  "preview": {
+    "renderer": "webview",
+    "entry": "view.html"
+  }
+}

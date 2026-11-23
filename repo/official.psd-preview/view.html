@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PSD Preview</title>
+  <style>
+    :root { color-scheme: light dark; }
+    html, body {
+      margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden;
+      background: transparent;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+    #stage {
+      width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;
+      cursor: grab; touch-action: none;
+    }
+    #stage.dragging { cursor: grabbing; }
+    img { max-width: 94vw; max-height: 92vh; object-fit: contain; transform-origin: center center; user-select: none; -webkit-user-drag: none; }
+    #status { position: fixed; bottom: 12px; left: 50%; transform: translateX(-50%); opacity: 0.75; font-size: 12px; pointer-events: none; }
+  </style>
+</head>
+<body>
+  <div id="stage"><img id="preview" alt="PSD Preview" /></div>
+  <div id="status">Loading PSD preview...</div>
+  <script src="view.js"></script>
+</body>
+</html>

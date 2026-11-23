@@ -1,0 +1,37 @@
+{
+  "id": "official.ipv-preview",
+  "name": "IPV Preview",
+  "version": "1.0.0",
+  "minAppVersion": "1.0.0",
+  "kind": "preview",
+  "native": "ipv",
+  "description": "Native ibisPaint (.ipv) artwork preview with zoom, pan and thumbnail generation.",
+  "author": "Bowerbird Team",
+  "license": "MIT",
+  "priority": 95,
+  "extensions": [
+    "ipv"
+  ],
+  "mimePrefixes": [
+    "application/x-ibispaint",
+    "application/x-ipv"
+  ],
+  "supportsZoom": true,
+  "capabilities": [
+    "preview"
+  ],
+  "builtin": false,
+  "permissions": {
+    "network": [],
+    "process": []
+  },
+  "settings": [],
+  "platforms": [
+    "desktop",
+    "mobile"
+  ],
+  "preview": {
+    "renderer": "webview",
+    "entry": "view.html"
+  }
+}

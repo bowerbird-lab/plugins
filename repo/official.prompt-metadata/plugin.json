@@ -1,0 +1,26 @@
+{
+  "id": "official.prompt-metadata",
+  "name": "AI Prompt Metadata",
+  "version": "2.0.0",
+  "minAppVersion": "1.0.0",
+  "kind": "metadata",
+  "main": "index.js",
+  "hooks": ["inspect"],
+  "description": "Inspects AI generation prompts and metadata in the declarative native inspector.",
+  "author": "Bowerbird Team",
+  "license": "MIT",
+  "priority": 50,
+  "capabilities": [
+    "metadata"
+  ],
+  "builtin": false,
+  "permissions": {
+    "network": [],
+    "process": []
+  },
+  "settings": [],
+  "platforms": [
+    "desktop",
+    "mobile"
+  ]
+}

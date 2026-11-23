@@ -1,0 +1,44 @@
+{
+  "id": "official.markdown-preview",
+  "name": "Markdown Preview",
+  "version": "2.0.0",
+  "minAppVersion": "1.0.0",
+  "kind": "preview",
+  "description": "Self-maintained GitHub-flavored Markdown preview rendered in an isolated transparent WebView.",
+  "author": "Bowerbird Team",
+  "license": "MIT",
+  "priority": 50,
+  "extensions": [
+    "md",
+    "markdown",
+    "mdown",
+    "mkd",
+    "mdwn",
+    "mdt"
+  ],
+  "mimePrefixes": [
+    "text/markdown",
+    "text/x-markdown"
+  ],
+  "supportsZoom": false,
+  "capabilities": [
+    "preview"
+  ],
+  "builtin": false,
+  "permissions": {
+    "assets": [
+      "read"
+    ],
+    "network": [],
+    "process": []
+  },
+  "settings": [],
+  "platforms": [
+    "desktop",
+    "mobile"
+  ],
+  "preview": {
+    "renderer": "webview",
+    "entry": "view.html"
+  }
+}
